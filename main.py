@@ -6,14 +6,21 @@ def main():
     data = np.genfromtxt('training_data.csv', delimiter=',', dtype='int32')
     x, y = data[:, 0], data[:, 1]
 
-    eta = 0.01
+    eta = 0.1
 
     w = np.random.uniform(-1, 1, 1)
-    t = 100
+
+    for this_x in x:
+        pred = logistic_fn(w, this_x)
+        print(pred)
+    print()
+    t = 100000
 
     for _ in range(t):
         g = calculate_gradient(w, x, y)
         w = w - eta * g
+        if g < 0.000001:
+            break
 
     for this_x in x:
         pred = logistic_fn(w, this_x)
@@ -28,7 +35,7 @@ def calculate_gradient(w, x, y):
 
 
 def partial_gradient(w, x, y):
-    return (y * x) / (1 + pow(e, -y * (np.dot(w, x))))
+    return (y * x) / (1 + pow(e, y * (np.dot(w, x))))
 
 
 def logistic_fn(w, x):

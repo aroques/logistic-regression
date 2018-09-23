@@ -21,9 +21,20 @@ def main():
         if np.sum(np.absolute(g)) < 0.000001 and i > min_iterations:
             break
 
-    preds = get_predictions(w, x)
+    midpoint = 3.25 # where P(x = 1) = 0.5
+    test_x = range(round(midpoint) - 12, round(midpoint) + 12)
+    test_x = np.column_stack((np.ones_like(test_x), test_x))  # Let x0 equal 1
+    probs = get_logistic_probs(w, test_x)
 
-    plot_exp(ein, preds, x, min_iterations)
+    plot_exp(ein, probs, test_x, midpoint)
+
+
+def get_logistic_probs(w, x):
+    probs = []
+    for this_x in x:
+        prob = logistic_fn(w, this_x)
+        probs.append(prob)
+    return probs
 
 
 def get_predictions(w, x):
@@ -34,25 +45,26 @@ def get_predictions(w, x):
     return [pred if pred > 0 else -1 for pred in preds]
 
 
-def plot_exp(ein, preds, x, num_iterations):
+def plot_exp(ein, preds, x, midpoint):
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.0, 5.0))
     f.canvas.set_window_title('Logistic Regression')
     plt.tight_layout(pad=3.0, w_pad=5.0, h_pad=4.0)
 
     # axes 1
-    x_range = np.array(range(0, num_iterations))
+    x_ein = np.array(range(0, len(ein)))
     ax1.set(title='In-sample Error',
             xlabel='iteration',
             ylabel='in-sample error',
             )
-    ax1.plot(x_range, ein)
+    ax1.plot(x_ein, ein)
 
     # axes 2
-    ax2.set(title='Predictions',
+    ax2.set(title='Sigmoid Function',
             xlabel='x',
-            ylabel='label'
+            ylabel='P(x = 1)'
             )
-    ax2.scatter(x[:, 1], preds)
+    ax2.plot(x[:, 1], preds)
+    ax2.axvline(midpoint, color='orange', ls='--')
     plt.show()
 
 

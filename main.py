@@ -4,14 +4,15 @@ import matplotlib.pyplot as plt
 
 
 def main():
+    x, y = get_x_y()
+    w = np.random.uniform(-10, 10, x.shape[1])
+
     min_iterations = 100
     eta = 0.1
     t = 200000
 
-    x, y = get_x_y()
-    w = np.random.uniform(-10, 10, x.shape[1])
-
     ein = []
+
     for i in range(t):
         if i < min_iterations:
             ein.append(insample_error(w, x, y))
@@ -21,12 +22,7 @@ def main():
         if np.sum(np.absolute(g)) < 0.000001 and i > min_iterations:
             break
 
-    midpoint = 3.25 # where P(x = 1) = 0.5
-    test_x = range(round(midpoint) - 12, round(midpoint) + 12)
-    test_x = np.column_stack((np.ones_like(test_x), test_x))  # Let x0 equal 1
-    probs = get_logistic_probs(w, test_x)
-
-    plot_exp(ein, probs, test_x, midpoint)
+    plot_exp(ein, w)
 
 
 def get_logistic_probs(w, x):
@@ -45,7 +41,7 @@ def get_predictions(w, x):
     return [pred if pred > 0 else -1 for pred in preds]
 
 
-def plot_exp(ein, preds, x, midpoint):
+def plot_exp(ein, w):
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.0, 5.0))
     f.canvas.set_window_title('Logistic Regression')
     plt.tight_layout(pad=3.0, w_pad=5.0, h_pad=4.0)
@@ -59,11 +55,14 @@ def plot_exp(ein, preds, x, midpoint):
     ax1.plot(x_ein, ein)
 
     # axes 2
+    midpoint = 3.25  # where P(x = 1) = 0.5
+    x = range(round(midpoint) - 12, round(midpoint) + 12)
+    probs = get_logistic_probs(w, add_bias(x))
     ax2.set(title='Sigmoid Function',
             xlabel='x',
             ylabel='P(x = 1)'
             )
-    ax2.plot(x[:, 1], preds)
+    ax2.plot(x, probs)
     ax2.axvline(midpoint, color='orange', ls='--')
     plt.show()
 
@@ -71,8 +70,11 @@ def plot_exp(ein, preds, x, midpoint):
 def get_x_y():
     data = np.genfromtxt('training_data.csv', delimiter=',', dtype='int32')
     x, y = data[:, 0], data[:, 1]
-    x = np.column_stack((np.ones_like(x), x))  # Let x0 equal 1
-    return x, y
+    return add_bias(x), y
+
+
+def add_bias(x):
+    return np.column_stack((np.ones_like(x), x))  # Let x0 equal 1
 
 
 def calculate_gradient(w, x, y):

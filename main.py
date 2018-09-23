@@ -1,21 +1,12 @@
 from math import e, pow, log
 import numpy as np
-from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 
 
 def main():
-    x_range = np.array(range(-10, 10))
-    lr = LogisticRegression()
-
-    data = np.genfromtxt('training_data.csv', delimiter=',', dtype='int32')
-    x, y = data[:, 0], data[:, 1]
-    x = np.column_stack((np.ones_like(x), x))  # Let x0 equal 1
-
-    lr.fit(x, y)
-
-    print(x)
-    print(y)
+    num_iterations = 100
+    x_range = np.array(range(0, num_iterations))
+    x, y = get_x_y()
 
     eta = 0.1
 
@@ -23,20 +14,48 @@ def main():
 
     t = 200000
 
+    ein = []
     for i in range(t):
+        if i < num_iterations:
+            ein.append(insample_error(w, x, y))
         g = calculate_gradient(w, x, y)
         w = w - eta * g
 
-        if np.sum(np.absolute(g)) < 0.0001 and i > 10000:
-            print()
-            print(i)
+        if np.sum(np.absolute(g)) < 0.000001 and i > num_iterations:
             break
 
-    print()
-
+    preds = []
     for this_x, this_y in zip(x, y):
-        pred = logistic_fn(w, this_x, this_y)
-        print(pred)
+        pred = round(logistic_fn(w, this_x, this_y))
+        if pred == 0:
+            pred = -1
+        preds.append(pred)
+
+    f, (ax1, ax2) = plt.subplots(1, 2)
+    plt.tight_layout()
+
+    # axes 1
+    ax1.set(title='in-sample error',
+            xlabel='iteration',
+            ylabel='in-sample error'
+            )
+    ax1.plot(x_range, ein)
+
+    # axes 2
+    ax2.set(title='predictions',
+            xlabel='x',
+            ylabel='P(x = 1)'
+            )
+    ax2.scatter(x[:, 1], preds)
+
+    plt.show()
+
+
+def get_x_y():
+    data = np.genfromtxt('training_data.csv', delimiter=',', dtype='int32')
+    x, y = data[:, 0], data[:, 1]
+    x = np.column_stack((np.ones_like(x), x))  # Let x0 equal 1
+    return x, y
 
 
 def calculate_gradient(w, x, y):

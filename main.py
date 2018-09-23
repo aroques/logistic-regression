@@ -4,37 +4,42 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    num_iterations = 100
-    x_range = np.array(range(0, num_iterations))
-    x, y = get_x_y()
-
+    min_iterations = 100
     eta = 0.1
-
-    w = np.random.uniform(-10, 10, 2)
-
     t = 200000
+
+    x, y = get_x_y()
+    w = np.random.uniform(-10, 10, x.shape[1])
 
     ein = []
     for i in range(t):
-        if i < num_iterations:
+        if i < min_iterations:
             ein.append(insample_error(w, x, y))
         g = calculate_gradient(w, x, y)
         w = w - eta * g
 
-        if np.sum(np.absolute(g)) < 0.000001 and i > num_iterations:
+        if np.sum(np.absolute(g)) < 0.000001 and i > min_iterations:
             break
 
-    preds = []
-    for this_x, this_y in zip(x, y):
-        pred = round(logistic_fn(w, this_x, this_y))
-        if pred == 0:
-            pred = -1
-        preds.append(pred)
+    preds = get_predictions(w, x)
 
+    plot_exp(ein, preds, x, min_iterations)
+
+
+def get_predictions(w, x):
+    preds = []
+    for this_x in x:
+        pred = round(logistic_fn(w, this_x))
+        preds.append(pred)
+    return [pred if pred > 0 else -1 for pred in preds]
+
+
+def plot_exp(ein, preds, x, num_iterations):
     f, (ax1, ax2) = plt.subplots(1, 2)
     plt.tight_layout()
 
     # axes 1
+    x_range = np.array(range(0, num_iterations))
     ax1.set(title='in-sample error',
             xlabel='iteration',
             ylabel='in-sample error'
@@ -47,7 +52,6 @@ def main():
             ylabel='P(x = 1)'
             )
     ax2.scatter(x[:, 1], preds)
-
     plt.show()
 
 
@@ -69,8 +73,8 @@ def partial_gradient(w, x, y):
     return (y * x) / (1 + pow(e, y * (np.dot(w, x))))
 
 
-def logistic_fn(w, x, y):
-    s = y * np.dot(w, x)
+def logistic_fn(w, x):
+    s = np.dot(w, x)
     return pow(e, s) / (1 + pow(e, s))
 
 

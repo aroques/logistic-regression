@@ -35,21 +35,22 @@ def get_predictions(w, x):
 
 
 def plot_exp(ein, preds, x, num_iterations):
-    f, (ax1, ax2) = plt.subplots(1, 2)
-    plt.tight_layout()
+    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.0, 5.0))
+    f.canvas.set_window_title('Logistic Regression')
+    plt.tight_layout(pad=3.0, w_pad=5.0, h_pad=4.0)
 
     # axes 1
     x_range = np.array(range(0, num_iterations))
-    ax1.set(title='in-sample error',
+    ax1.set(title='In-sample Error',
             xlabel='iteration',
-            ylabel='in-sample error'
+            ylabel='in-sample error',
             )
     ax1.plot(x_range, ein)
 
     # axes 2
-    ax2.set(title='predictions',
+    ax2.set(title='Predictions',
             xlabel='x',
-            ylabel='P(x = 1)'
+            ylabel='label'
             )
     ax2.scatter(x[:, 1], preds)
     plt.show()

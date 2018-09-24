@@ -16,12 +16,15 @@ def main():
     for i in range(t):
         if i < min_iterations:
             ein.append(insample_error(w, x, y))
+
         g = calculate_gradient(w, x, y)
         w = w - eta * g
 
         if np.sum(np.absolute(g)) < 0.000001 and i > min_iterations:
+            print('number of iterations = {}'.format(i))
             break
 
+    print('final weight vector: {}'.format(w))
     plot_exp(ein, w)
 
 
@@ -70,7 +73,7 @@ def plot_exp(ein, w):
 def get_x_y():
     data = np.genfromtxt('training_data.csv', delimiter=',', dtype='int32')
     x, y = data[:, 0], data[:, 1]
-    return add_bias(x), y
+    return add_bias(x), [y if y == 1 else -1 for y in y]
 
 
 def add_bias(x):

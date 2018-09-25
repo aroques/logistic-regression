@@ -63,7 +63,7 @@ def plot_exp(ein, w):
     probs = get_logistic_probs(w, add_bias(x))
     ax2.set(title='Sigmoid Function',
             xlabel='x',
-            ylabel='P(x = 1)'
+            ylabel='P(y = 1)'
             )
     ax2.plot(x, probs)
     ax2.axvline(midpoint, color='orange', ls='--')
